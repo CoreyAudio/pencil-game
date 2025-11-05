@@ -1,14 +1,17 @@
 package com.coreyaudio.pencilgame.ui;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.util.Objects;
 
-public class GameWindow extends JFrame {
+public class GameWindow extends JFrame
+{
     
     private ImageIcon frameIcon;
     private ImageIcon labelIcon;
     private JLabel titleLabel;
+    private JPanel buttonLayout;
     
     public GameWindow(){
         SwingUtilities.invokeLater(this::buildUI);
@@ -18,8 +21,9 @@ public class GameWindow extends JFrame {
         loadIcons();
         configureWindow();
         configureLabel();
-        
+        setButtons();
         add(titleLabel, BorderLayout.CENTER);
+        add(buttonLayout, BorderLayout.SOUTH);
         setVisible(true);
     }
     
@@ -29,6 +33,7 @@ public class GameWindow extends JFrame {
     }
     
     private void configureWindow(){
+        // JFrame extended into GameWindow. Inherits all JFrame.
         setTitle("Pencil Game");
         setSize(400, 400);
         setIconImage(frameIcon.getImage());
@@ -39,11 +44,30 @@ public class GameWindow extends JFrame {
     }
     
     private void configureLabel(){
-        titleLabel = new JLabel("<html>WELCOME TO THE<br/>&emsp;&nbsp;PENCIL GAME!</html>", SwingConstants.CENTER);
+        titleLabel = new JLabel("<html><center>WELCOME TO THE<br/>PENCIL GAME!</center></html>", SwingConstants.CENTER);
+        Border border = BorderFactory.createLineBorder(Color.GREEN, 2);
         titleLabel.setIcon(labelIcon);
-        titleLabel.setHorizontalTextPosition(JLabel.CENTER);
-        titleLabel.setVerticalTextPosition(JLabel.BOTTOM);
         titleLabel.setForeground(Color.GREEN);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+        titleLabel.setBorder(border);
+    }
+    
+    private void setButtons(){
+        JButton startButton = new JButton();
+        JButton exitButton = new JButton();
+        buttonLayout = new JPanel(new GridBagLayout());
+        startButton.addActionListener(_ -> newWindow());
+        startButton.setText("START");
+        startButton.setFocusable(false);
+        exitButton.addActionListener(_ -> System.exit(0));
+        exitButton.setText("EXIT");
+        exitButton.setFocusable(false);
+        buttonLayout.add(startButton);
+        buttonLayout.add(exitButton);
+    }
+    
+    private void newWindow(){
+        titleLabel.setIcon(null);
+        titleLabel.setText("");
     }
 }
