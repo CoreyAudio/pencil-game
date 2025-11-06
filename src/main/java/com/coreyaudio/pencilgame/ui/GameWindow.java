@@ -45,7 +45,7 @@ public class GameWindow extends JFrame
     
     private void configureLabel(){
         titleLabel = new JLabel("<html><center>WELCOME TO THE<br/>PENCIL GAME!</center></html>", SwingConstants.CENTER);
-        Border border = BorderFactory.createLineBorder(Color.GREEN, 2);
+        Border border = BorderFactory.createLineBorder(Color.WHITE, 2);
         titleLabel.setIcon(labelIcon);
         titleLabel.setForeground(Color.GREEN);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
