@@ -55,6 +55,7 @@ public class GameWindow extends JFrame
     private void setButtons(){
         JButton startButton = new JButton();
         JButton exitButton = new JButton();
+        GridBagConstraints gbc = new GridBagConstraints();
         buttonLayout = new JPanel(new GridBagLayout());
         startButton.addActionListener(_ -> newWindow());
         startButton.setText("START");
@@ -62,8 +63,11 @@ public class GameWindow extends JFrame
         exitButton.addActionListener(_ -> System.exit(0));
         exitButton.setText("EXIT");
         exitButton.setFocusable(false);
-        buttonLayout.add(startButton);
-        buttonLayout.add(exitButton);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(5,10,5,10);
+        buttonLayout.add(startButton, gbc);
+        buttonLayout.add(exitButton, gbc);
     }
     
     private void newWindow(){
