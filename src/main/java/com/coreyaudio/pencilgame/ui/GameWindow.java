@@ -54,16 +54,12 @@ public class GameWindow extends JFrame
     
     private void setButtons(){
         JButton startButton = new JButton();
-        JButton highScores = new JButton();
         JButton exitButton = new JButton();
         GridBagConstraints gbc = new GridBagConstraints();
         buttonLayout = new JPanel(new GridBagLayout());
         startButton.addActionListener(_ -> newGame());
         startButton.setText("START");
         startButton.setFocusable(false);
-        highScores.addActionListener(_ -> newGame());
-        highScores.setText("HIGH SCORES");
-        highScores.setFocusable(false);
         exitButton.addActionListener(_ -> System.exit(0));
         exitButton.setText("EXIT");
         exitButton.setFocusable(false);
@@ -71,7 +67,6 @@ public class GameWindow extends JFrame
         gbc.weightx = 1.0;
         gbc.insets = new Insets(5,5,5,5);
         buttonLayout.add(startButton, gbc);
-        buttonLayout.add(highScores, gbc);
         buttonLayout.add(exitButton, gbc);
     }
     
