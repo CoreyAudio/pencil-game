@@ -11,6 +11,7 @@ public class GameWindow extends JFrame
     private ImageIcon frameIcon;
     private ImageIcon labelIcon;
     private JLabel titleLabel;
+    private JButton firstButton;
     private JPanel buttonLayout;
     
     public GameWindow(){
@@ -53,25 +54,26 @@ public class GameWindow extends JFrame
     }
     
     private void setButtons(){
-        JButton startButton = new JButton();
+        firstButton = new JButton();
         JButton exitButton = new JButton();
         GridBagConstraints gbc = new GridBagConstraints();
         buttonLayout = new JPanel(new GridBagLayout());
-        startButton.addActionListener(_ -> newGame());
-        startButton.setText("START");
-        startButton.setFocusable(false);
+        firstButton.addActionListener(_ -> newGame());
+        firstButton.setText("START");
+        firstButton.setFocusable(false);
         exitButton.addActionListener(_ -> System.exit(0));
         exitButton.setText("EXIT");
         exitButton.setFocusable(false);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(5,5,5,5);
-        buttonLayout.add(startButton, gbc);
+        buttonLayout.add(firstButton, gbc);
         buttonLayout.add(exitButton, gbc);
     }
     
     private void newGame(){
         titleLabel.setIcon(null);
-        titleLabel.setText("");
+        titleLabel.setText("<html><center>How many pencils would<br/>you like to use?</center></html>");
+        firstButton.setText("RESTART");
     }
 }
