@@ -1,5 +1,9 @@
 package com.coreyaudio.pencilgame;
 
-public class GameLogic
+class GameLogic
 {
+    String message;
+    StringBuilder pencils;
+    
+    GameLogic(){}
 }
