@@ -5,6 +5,7 @@ import com.coreyaudio.pencilgame.ui.GameWindow;
 public class Main
 {
     public static void main(String[] args) {
-        new GameWindow();
+        GameWindow game = new GameWindow();
+        game.buildUI();
     }
 }

@@ -5,27 +5,28 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.util.Objects;
 
-public class GameWindow extends JFrame
+public class GameWindow
 {
-    
+    private JFrame mainFrame;
     private ImageIcon frameIcon;
     private ImageIcon labelIcon;
     private JLabel titleLabel;
     private JButton firstButton;
+    private JButton secondButton;
     private JPanel buttonLayout;
     
     public GameWindow(){
         SwingUtilities.invokeLater(this::buildUI);
     }
     
-    private void buildUI(){
+    public void buildUI(){
         loadIcons();
         configureWindow();
         configureLabel();
         setButtons();
-        add(titleLabel, BorderLayout.CENTER);
-        add(buttonLayout, BorderLayout.SOUTH);
-        setVisible(true);
+        mainFrame.add(titleLabel, BorderLayout.CENTER);
+        mainFrame.add(buttonLayout, BorderLayout.SOUTH);
+        mainFrame.setVisible(true);
     }
     
     private void loadIcons(){
@@ -34,14 +35,14 @@ public class GameWindow extends JFrame
     }
     
     private void configureWindow(){
-        // JFrame extended into GameWindow. Inherits all JFrame.
-        setTitle("Pencil Game");
-        setSize(400, 400);
-        setIconImage(frameIcon.getImage());
-        getContentPane().setBackground(Color.BLACK);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-        setLocationRelativeTo(null);
+        mainFrame = new JFrame();
+        mainFrame.setTitle("Pencil Game");
+        mainFrame.setSize(400, 400);
+        mainFrame.setIconImage(frameIcon.getImage());
+        mainFrame.getContentPane().setBackground(Color.BLACK);
+        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        mainFrame.setLayout(new BorderLayout());
+        mainFrame.setLocationRelativeTo(null);
     }
     
     private void configureLabel(){
@@ -55,20 +56,20 @@ public class GameWindow extends JFrame
     
     private void setButtons(){
         firstButton = new JButton();
-        JButton exitButton = new JButton();
+        secondButton = new JButton();
         GridBagConstraints gbc = new GridBagConstraints();
         buttonLayout = new JPanel(new GridBagLayout());
         firstButton.addActionListener(_ -> newGame());
         firstButton.setText("START");
         firstButton.setFocusable(false);
-        exitButton.addActionListener(_ -> System.exit(0));
-        exitButton.setText("EXIT");
-        exitButton.setFocusable(false);
+        secondButton.addActionListener(_ -> System.exit(0));
+        secondButton.setText("EXIT");
+        secondButton.setFocusable(false);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(5,5,5,5);
         buttonLayout.add(firstButton, gbc);
-        buttonLayout.add(exitButton, gbc);
+        buttonLayout.add(secondButton, gbc);
     }
     
     private void newGame(){
