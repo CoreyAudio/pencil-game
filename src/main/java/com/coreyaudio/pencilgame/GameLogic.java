@@ -1,9 +1,10 @@
 package com.coreyaudio.pencilgame;
 
-class GameLogic
+public class GameLogic
 {
-    String message;
-    StringBuilder pencils;
     
-    GameLogic(){}
+    public static void printPencils(int num){
+        StringBuilder sb = new StringBuilder();
+        sb.append("|".repeat(num));
+    }
 }

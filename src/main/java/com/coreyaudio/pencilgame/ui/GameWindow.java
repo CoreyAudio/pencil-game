@@ -1,8 +1,11 @@
 package com.coreyaudio.pencilgame.ui;
 
+import com.coreyaudio.pencilgame.GameLogic;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.util.Objects;
 
 public class GameWindow
@@ -72,9 +75,32 @@ public class GameWindow
         buttonLayout.add(secondButton, gbc);
     }
     
+    private void resetButtons(){
+        for (ActionListener a : firstButton.getActionListeners()){
+            firstButton.removeActionListener(a);
+        }
+        for (ActionListener b : secondButton.getActionListeners())
+        {
+            secondButton.removeActionListener(b);
+        }
+    }
+    
     private void newGame(){
+        resetButtons();
         titleLabel.setIcon(null);
-        titleLabel.setText("<html><center>How many pencils would<br/>you like to use?</center></html>");
-        firstButton.setText("RESTART");
+        titleLabel.setText("<html><center>HOW MANY PENCILS WOULD <br/> YOU LIKE TO USE?</center></html>");
+        firstButton.setText("5");
+        firstButton.addActionListener(_ -> GameLogic.printPencils(5));
+        firstButton.addActionListener(_ -> playerChoice());
+        secondButton.setText("10");
+        secondButton.addActionListener(_ -> GameLogic.printPencils(10));
+        secondButton.addActionListener(_ -> playerChoice());
+    }
+    
+    private void playerChoice(){
+        resetButtons();
+        titleLabel.setText("<html><center>WHO GOES FIRST?</center></html>");
+        firstButton.setText("USER");
+        secondButton.setText("COMPUTER");
     }
 }
