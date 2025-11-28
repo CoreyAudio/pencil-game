@@ -16,7 +16,7 @@ public class GameWindow
     private JLabel titleLabel;
     private JButton firstButton;
     private JButton secondButton;
-    private JButton thirdButtton;
+    private JButton thirdButton;
     private JPanel buttonLayout;
     private GridBagConstraints gbc;
     
@@ -70,7 +70,7 @@ public class GameWindow
     private void setButtons(){
         firstButton = new JButton();
         secondButton = new JButton();
-        thirdButtton = new JButton();
+        thirdButton = new JButton();
         buttonLayout = new JPanel(new GridBagLayout());
         firstButton.addActionListener(_ -> newGame());
         firstButton.setText("START");
@@ -81,8 +81,8 @@ public class GameWindow
         setGrid();
         buttonLayout.add(firstButton, gbc);
         buttonLayout.add(secondButton, gbc);
-        buttonLayout.add(thirdButtton,gbc);
-        thirdButtton.setVisible(false);
+        buttonLayout.add(thirdButton,gbc);
+        thirdButton.setVisible(false);
     }
     
     private void resetButtons(){
@@ -93,9 +93,9 @@ public class GameWindow
         {
             secondButton.removeActionListener(b);
         }
-        for (ActionListener c : thirdButtton.getActionListeners())
+        for (ActionListener c : thirdButton.getActionListeners())
         {
-            thirdButtton.removeActionListener(c);
+            thirdButton.removeActionListener(c);
         }
     }
     
@@ -104,20 +104,26 @@ public class GameWindow
         titleLabel.setIcon(null);
         titleLabel.setText("<html><center>HOW MANY PENCILS WOULD <br/> YOU LIKE TO USE?</center></html>");
         firstButton.setText("5");
-        firstButton.addActionListener(_ -> GameLogic.storePencils(5));
-        firstButton.addActionListener(_ -> playerChoice());
+        firstButton.addActionListener(_ -> {
+            GameLogic.storePencils(5);
+            playerChoice();
+        });
         secondButton.setText("10");
-        secondButton.addActionListener(_ -> GameLogic.storePencils(10));
-        secondButton.addActionListener(_ -> playerChoice());
-        thirdButtton.setVisible(true);
-        thirdButtton.setText("15");
-        thirdButtton.addActionListener(_ -> GameLogic.storePencils(15));
-        thirdButtton.addActionListener(_ -> playerChoice());
+        secondButton.addActionListener(_ -> {
+            GameLogic.storePencils(10);
+            playerChoice();
+        });
+        thirdButton.setVisible(true);
+        thirdButton.setText("15");
+        thirdButton.addActionListener(_ -> {
+            GameLogic.storePencils(15);
+            playerChoice();
+        });
     }
     
     private void playerChoice(){
         resetButtons();
-        thirdButtton.setVisible(false);
+        thirdButton.setVisible(false);
         titleLabel.setText("<html><center>WHO GOES FIRST?</center></html>");
         firstButton.setText("PLAYER");
         firstButton.addActionListener(_ -> playerTurn());
@@ -127,13 +133,26 @@ public class GameWindow
     
     private void playerTurn(){
         resetButtons();
+        GameLogic.player = true;
+        thirdButton.setVisible(true);
         titleLabel.setText("<html><center>"
                 + GameLogic.getPencils()
                 +"<br/><br/>PLEASE CHOOSE THE AMOUNT OF <br/> PENCILS TO REMOVE!</center></html>");
         firstButton.setText("1");
+        firstButton.addActionListener(_ -> {
+            GameLogic.removePencils(1);
+            turnScreen();
+        });
         secondButton.setText("2");
-        thirdButtton.setVisible(true);
-        thirdButtton.setText("3");
+        secondButton.addActionListener(_ -> {
+            GameLogic.removePencils(2);
+            turnScreen();
+        });
+        thirdButton.setText("3");
+        thirdButton.addActionListener(_ -> {
+            GameLogic.removePencils(3);
+            turnScreen();
+        });
         if (!firstButton.isVisible()){
             firstButton.setVisible(true);
             secondButton.setVisible(true);
@@ -142,6 +161,7 @@ public class GameWindow
     
     private void computerTurn(){
         resetButtons();
+        GameLogic.player = false;
         titleLabel.setText("<html><center>"
                 + GameLogic.getPencils()
                 + "<br/><br/>THE COMPUTER TOOK " + GameLogic.getCount() + " PENCILS!</center></html>");
@@ -150,8 +170,24 @@ public class GameWindow
         frameTimer();
     }
     
+    private void turnScreen(){
+        resetButtons();
+        firstButton.setVisible(false);
+        secondButton.setVisible(false);
+        thirdButton.setVisible(false);
+        titleLabel.setText("<html><center>"
+                + GameLogic.getPencils()
+                + "<br/><br/>THERE ARE " + GameLogic.getCount() + " PENCILS LEFT.");
+        frameTimer();
+    }
+    
     private void frameTimer(){
-        Timer slowTime = new Timer(3000, _ -> playerTurn());
+        Timer slowTime;
+        if (GameLogic.player){
+            slowTime = new Timer(3000, _ -> computerTurn());
+        }else{
+            slowTime = new Timer(3000, _ -> playerTurn());
+        }
         slowTime.setRepeats(false);
         slowTime.start();
     }
