@@ -135,6 +135,16 @@ public class GameWindow
         resetButtons();
         GameLogic.player = true;
         thirdButton.setVisible(true);
+        if (!firstButton.isVisible())
+        {
+            firstButton.setVisible(true);
+            secondButton.setVisible(true);
+        }if (GameLogic.getCount() == 1){
+            secondButton.setVisible(false);
+            thirdButton.setVisible(false);
+        }else if (GameLogic.getCount() == 2){
+            thirdButton.setVisible(false);
+        }
         titleLabel.setText("<html><center>"
                 + GameLogic.getPencils()
                 +"<br/><br/>PLEASE CHOOSE THE AMOUNT OF <br/> PENCILS TO REMOVE!</center></html>");
@@ -153,37 +163,44 @@ public class GameWindow
             GameLogic.removePencils(3);
             turnScreen();
         });
-        if (!firstButton.isVisible()){
-            firstButton.setVisible(true);
-            secondButton.setVisible(true);
-        }
     }
     
     private void computerTurn(){
-        resetButtons();
+        removeButtons();
         GameLogic.player = false;
+        int numPen = GameLogic.compLogic();
         titleLabel.setText("<html><center>"
                 + GameLogic.getPencils()
-                + "<br/><br/>THE COMPUTER TOOK " + GameLogic.getCount() + " PENCILS!</center></html>");
-        firstButton.setVisible(false);
-        secondButton.setVisible(false);
+                + "<br/><br/>THE COMPUTER TOOK " + numPen + " PENCILS!</center></html>");
         frameTimer();
     }
     
     private void turnScreen(){
-        resetButtons();
-        firstButton.setVisible(false);
-        secondButton.setVisible(false);
-        thirdButton.setVisible(false);
+        removeButtons();
         titleLabel.setText("<html><center>"
                 + GameLogic.getPencils()
                 + "<br/><br/>THERE ARE " + GameLogic.getCount() + " PENCILS LEFT.");
         frameTimer();
     }
     
+    private void gameOver(){
+        removeButtons();
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 25));
+        titleLabel.setText("<html><center>GAME OVER"
+                + "<br/>YOU LOSE!");
+    }
+    
+    private void removeButtons(){
+        resetButtons();
+        firstButton.setVisible(false);
+        secondButton.setVisible(false);
+        thirdButton.setVisible(false);
+    }
     private void frameTimer(){
         Timer slowTime;
-        if (GameLogic.player){
+        if (GameLogic.player == null){
+            slowTime = new Timer(3000, _ -> gameOver());
+        }else if (GameLogic.player){
             slowTime = new Timer(3000, _ -> computerTurn());
         }else{
             slowTime = new Timer(3000, _ -> playerTurn());
