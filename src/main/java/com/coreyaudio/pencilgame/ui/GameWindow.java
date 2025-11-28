@@ -16,7 +16,9 @@ public class GameWindow
     private JLabel titleLabel;
     private JButton firstButton;
     private JButton secondButton;
+    private JButton thirdButtton;
     private JPanel buttonLayout;
+    private GridBagConstraints gbc;
     
     public GameWindow(){
         SwingUtilities.invokeLater(this::buildUI);
@@ -57,10 +59,18 @@ public class GameWindow
         titleLabel.setBorder(border);
     }
     
+    private void setGrid()
+    {
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(5, 5, 5, 5);
+    }
+    
     private void setButtons(){
         firstButton = new JButton();
         secondButton = new JButton();
-        GridBagConstraints gbc = new GridBagConstraints();
+        thirdButtton = new JButton();
         buttonLayout = new JPanel(new GridBagLayout());
         firstButton.addActionListener(_ -> newGame());
         firstButton.setText("START");
@@ -68,11 +78,11 @@ public class GameWindow
         secondButton.addActionListener(_ -> System.exit(0));
         secondButton.setText("EXIT");
         secondButton.setFocusable(false);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.weightx = 1.0;
-        gbc.insets = new Insets(5,5,5,5);
+        setGrid();
         buttonLayout.add(firstButton, gbc);
         buttonLayout.add(secondButton, gbc);
+        buttonLayout.add(thirdButtton,gbc);
+        thirdButtton.setVisible(false);
     }
     
     private void resetButtons(){
@@ -83,6 +93,10 @@ public class GameWindow
         {
             secondButton.removeActionListener(b);
         }
+        for (ActionListener c : thirdButtton.getActionListeners())
+        {
+            secondButton.removeActionListener(c);
+        }
     }
     
     private void newGame(){
@@ -90,17 +104,55 @@ public class GameWindow
         titleLabel.setIcon(null);
         titleLabel.setText("<html><center>HOW MANY PENCILS WOULD <br/> YOU LIKE TO USE?</center></html>");
         firstButton.setText("5");
-        firstButton.addActionListener(_ -> GameLogic.printPencils(5));
+        firstButton.addActionListener(_ -> GameLogic.storePencils(5));
         firstButton.addActionListener(_ -> playerChoice());
         secondButton.setText("10");
-        secondButton.addActionListener(_ -> GameLogic.printPencils(10));
+        secondButton.addActionListener(_ -> GameLogic.storePencils(10));
         secondButton.addActionListener(_ -> playerChoice());
+        thirdButtton.setVisible(true);
+        thirdButtton.setText("15");
+        thirdButtton.addActionListener(_ -> GameLogic.storePencils(15));
+        thirdButtton.addActionListener(_ -> playerChoice());
     }
     
     private void playerChoice(){
         resetButtons();
+        thirdButtton.setVisible(false);
         titleLabel.setText("<html><center>WHO GOES FIRST?</center></html>");
-        firstButton.setText("USER");
+        firstButton.setText("PLAYER");
+        firstButton.addActionListener(_ -> playerTurn());
         secondButton.setText("COMPUTER");
+        secondButton.addActionListener(_ -> computerTurn());
+    }
+    
+    private void playerTurn(){
+        resetButtons();
+        titleLabel.setText("<html><center>"
+                + GameLogic.getPencils()
+                +"<br/><br/>PLEASE CHOOSE THE AMOUNT OF <br/> PENCILS TO REMOVE!</center></html>");
+        firstButton.setText("1");
+        secondButton.setText("2");
+        thirdButtton.setVisible(true);
+        thirdButtton.setText("3");
+        if (!firstButton.isVisible()){
+            firstButton.setVisible(true);
+            secondButton.setVisible(true);
+        }
+    }
+    
+    private void computerTurn(){
+        resetButtons();
+        titleLabel.setText("<html><center>"
+                + GameLogic.getPencils()
+                + "<br/><br/>THE COMPUTER TOOK " + GameLogic.getCount() + " PENCILS!</center></html>");
+        firstButton.setVisible(false);
+        secondButton.setVisible(false);
+        frameTimer();
+    }
+    
+    private void frameTimer(){
+        Timer slowTime = new Timer(3000, _ -> playerTurn());
+        slowTime.setRepeats(false);
+        slowTime.start();
     }
 }
