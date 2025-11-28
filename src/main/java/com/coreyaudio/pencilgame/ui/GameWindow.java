@@ -95,7 +95,7 @@ public class GameWindow
         }
         for (ActionListener c : thirdButtton.getActionListeners())
         {
-            secondButton.removeActionListener(c);
+            thirdButtton.removeActionListener(c);
         }
     }
     
