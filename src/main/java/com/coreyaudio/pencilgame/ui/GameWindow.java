@@ -1,221 +1,267 @@
 package com.coreyaudio.pencilgame.ui;
 
-import com.coreyaudio.pencilgame.Main;
-import com.coreyaudio.pencilgame.logic.GameLogic;
+import com.coreyaudio.pencilgame.logic.ComputerStrategy;
+import com.coreyaudio.pencilgame.model.GameResult;
+import com.coreyaudio.pencilgame.model.GameSession;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.Objects;
+import java.net.URL;
 
-public class GameWindow
-{
-    private JFrame mainFrame;
-    private ImageIcon frameIcon;
-    private ImageIcon labelIcon;
-    private JLabel titleLabel;
-    private JButton firstButton;
-    private JButton secondButton;
-    private JButton thirdButton;
-    private JPanel buttonLayout;
-    private GridBagConstraints gbc;
-    
-    public GameWindow(){
-        SwingUtilities.invokeLater(this::buildUI);
+public class GameWindow {
+    private static final int ACTION_DELAY_MS = 3000;
+    private static final int MENU_COUNTDOWN_SECONDS = 5;
+
+    private final JFrame frame;
+    private final JLabel titleLabel;
+    private final JPanel buttonPanel;
+    private final JButton firstButton;
+    private final JButton secondButton;
+    private final JButton thirdButton;
+    private final GameSession gameSession;
+
+    private Timer transitionTimer;
+    private Timer menuCountdownTimer;
+
+    public GameWindow() {
+        this.gameSession = new GameSession(new ComputerStrategy());
+        this.frame = new JFrame("Pencil Game");
+        this.titleLabel = new JLabel("", SwingConstants.CENTER);
+        this.buttonPanel = new JPanel(new GridBagLayout());
+        this.firstButton = new JButton();
+        this.secondButton = new JButton();
+        this.thirdButton = new JButton();
+        buildUi();
     }
-    
-    public void buildUI(){
-        loadIcons();
-        configureWindow();
-        configureLabel();
-        setButtons();
-        mainFrame.add(titleLabel, BorderLayout.CENTER);
-        mainFrame.add(buttonLayout, BorderLayout.SOUTH);
-        mainFrame.setVisible(true);
+
+    public void show() {
+        showStartMenu();
+        frame.setVisible(true);
     }
-    
-    private void loadIcons(){
-        frameIcon = new ImageIcon(Objects.requireNonNull(GameWindow.class.getResource("/images/pencil_game_icon.png")));
-        labelIcon = new ImageIcon(Objects.requireNonNull(GameWindow.class.getResource("/images/pencil_game_icon_16.png")));
-    }
-    
-    private void configureWindow(){
-        mainFrame = new JFrame();
-        mainFrame.setTitle("Pencil Game");
-        mainFrame.setSize(400, 400);
-        mainFrame.setIconImage(frameIcon.getImage());
-        mainFrame.getContentPane().setBackground(Color.BLACK);
-        mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        mainFrame.setLayout(new BorderLayout());
-        mainFrame.setLocationRelativeTo(null);
-    }
-    
-    private void configureLabel(){
-        titleLabel = new JLabel("<html><center>WELCOME TO THE<br/>PENCIL GAME!</center></html>", SwingConstants.CENTER);
-        Border border = BorderFactory.createLineBorder(Color.WHITE, 2);
-        titleLabel.setIcon(labelIcon);
+
+    private void buildUi() {
+        frame.setSize(400, 400);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+        frame.getContentPane().setBackground(Color.BLACK);
+        frame.setLayout(new BorderLayout());
+
+        URL frameIconUrl = GameWindow.class.getResource("/images/pencil_game_icon.png");
+        if (frameIconUrl != null) {
+            frame.setIconImage(new ImageIcon(frameIconUrl).getImage());
+        }
+
         titleLabel.setForeground(Color.GREEN);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+        Border border = BorderFactory.createLineBorder(Color.WHITE, 2);
         titleLabel.setBorder(border);
-    }
-    
-    private void setGrid()
-    {
-        gbc = new GridBagConstraints();
+
+        URL labelIconUrl = GameWindow.class.getResource("/images/pencil_game_icon_16.png");
+        if (labelIconUrl != null) {
+            titleLabel.setIcon(new ImageIcon(labelIconUrl));
+        }
+
+        GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
         gbc.insets = new Insets(5, 5, 5, 5);
+
+        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.add(firstButton, gbc);
+        buttonPanel.add(secondButton, gbc);
+        buttonPanel.add(thirdButton, gbc);
+
+        styleButton(firstButton);
+        styleButton(secondButton);
+        styleButton(thirdButton);
+
+        frame.add(titleLabel, BorderLayout.CENTER);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
     }
-    
-    private void setButtons(){
-        firstButton = new JButton();
-        secondButton = new JButton();
-        thirdButton = new JButton();
-        buttonLayout = new JPanel(new GridBagLayout());
-        firstButton.addActionListener(_ -> newGame());
-        firstButton.setText("START");
-        firstButton.setFocusable(false);
-        secondButton.addActionListener(_ -> System.exit(0));
-        secondButton.setText("EXIT");
-        secondButton.setFocusable(false);
-        setGrid();
-        buttonLayout.add(firstButton, gbc);
-        buttonLayout.add(secondButton, gbc);
-        buttonLayout.add(thirdButton,gbc);
-        thirdButton.setVisible(false);
+
+    private void styleButton(JButton button) {
+        button.setFocusable(false);
     }
-    
-    private void resetButtons(){
-        for (ActionListener a : firstButton.getActionListeners()){
-            firstButton.removeActionListener(a);
-        }
-        for (ActionListener b : secondButton.getActionListeners())
-        {
-            secondButton.removeActionListener(b);
-        }
-        for (ActionListener c : thirdButton.getActionListeners())
-        {
-            thirdButton.removeActionListener(c);
-        }
+
+    private void showStartMenu() {
+        stopTimers();
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
+        titleLabel.setIcon(loadLabelIcon());
+        titleLabel.setText("<html><center>WELCOME TO THE<br/>PENCIL GAME!</center></html>");
+
+        configureButtons(
+                new ButtonSpec("START", this::showPencilSelection),
+                new ButtonSpec("EXIT", () -> System.exit(0)),
+                null
+        );
     }
-    
-    private void newGame(){
-        resetButtons();
+
+    private void showPencilSelection() {
         titleLabel.setIcon(null);
         titleLabel.setText("<html><center>HOW MANY PENCILS WOULD <br/> YOU LIKE TO USE?</center></html>");
-        firstButton.setText("5");
-        firstButton.addActionListener(_ -> {
-            GameLogic.storePencils(5);
-            playerChoice();
-        });
-        secondButton.setText("10");
-        secondButton.addActionListener(_ -> {
-            GameLogic.storePencils(10);
-            playerChoice();
-        });
-        thirdButton.setVisible(true);
-        thirdButton.setText("15");
-        thirdButton.addActionListener(_ -> {
-            GameLogic.storePencils(15);
-            playerChoice();
-        });
+
+        configureButtons(
+                new ButtonSpec("5", () -> startTurnSelection(5)),
+                new ButtonSpec("10", () -> startTurnSelection(10)),
+                new ButtonSpec("15", () -> startTurnSelection(15))
+        );
     }
-    
-    private void playerChoice(){
-        resetButtons();
-        thirdButton.setVisible(false);
+
+    private void startTurnSelection(int pencils) {
         titleLabel.setText("<html><center>WHO GOES FIRST?</center></html>");
-        firstButton.setText("PLAYER");
-        firstButton.addActionListener(_ -> playerTurn());
-        secondButton.setText("COMPUTER");
-        secondButton.addActionListener(_ -> computerTurn());
+
+        configureButtons(
+                new ButtonSpec("PLAYER", () -> startGame(pencils, true)),
+                new ButtonSpec("COMPUTER", () -> startGame(pencils, false)),
+                null
+        );
     }
-    
-    private void playerTurn(){
-        resetButtons();
-        GameLogic.player = true;
-        thirdButton.setVisible(true);
-        if (!firstButton.isVisible())
-        {
-            firstButton.setVisible(true);
-            secondButton.setVisible(true);
-        }if (GameLogic.getCount() == 1){
-            secondButton.setVisible(false);
-            thirdButton.setVisible(false);
-        }else if (GameLogic.getCount() == 2){
-            thirdButton.setVisible(false);
+
+    private void startGame(int pencils, boolean playerStarts) {
+        gameSession.start(pencils, playerStarts);
+        if (playerStarts) {
+            showPlayerTurn();
+        } else {
+            runComputerTurn();
         }
+    }
+
+    private void showPlayerTurn() {
+        String pencils = gameSession.getPencilDisplay();
+        int count = gameSession.getPencilCount();
         titleLabel.setText("<html><center>"
-                + GameLogic.getPencils()
-                +"<br/><br/>PLEASE CHOOSE THE AMOUNT OF <br/> PENCILS TO REMOVE!</center></html>");
-        firstButton.setText("1");
-        firstButton.addActionListener(_ -> {
-            GameLogic.removePencils(1);
-            turnScreen();
-        });
-        secondButton.setText("2");
-        secondButton.addActionListener(_ -> {
-            GameLogic.removePencils(2);
-            turnScreen();
-        });
-        thirdButton.setText("3");
-        thirdButton.addActionListener(_ -> {
-            GameLogic.removePencils(3);
-            turnScreen();
-        });
+                + count + "<br/>"
+                + pencils
+                + "<br/><br/>PLEASE CHOOSE THE AMOUNT OF <br/> PENCILS TO REMOVE!</center></html>");
+
+        ButtonSpec one = new ButtonSpec("1", () -> runPlayerTurn(1));
+        ButtonSpec two = count >= 2 ? new ButtonSpec("2", () -> runPlayerTurn(2)) : null;
+        ButtonSpec three = count >= 3 ? new ButtonSpec("3", () -> runPlayerTurn(3)) : null;
+
+        configureButtons(one, two, three);
     }
-    
-    private void computerTurn(){
-        removeButtons();
-        GameLogic.player = false;
-        int numPen = GameLogic.compLogic();
+
+    private void runPlayerTurn(int amount) {
+        gameSession.takePlayerTurn(amount);
+
         titleLabel.setText("<html><center>"
-                + GameLogic.getPencils()
-                + "<br/><br/>THE COMPUTER TOOK " + numPen + " PENCILS!</center></html>");
-        frameTimer();
+                + gameSession.getPencilCount() + "<br/>"
+                + gameSession.getPencilDisplay()
+                + "<br/><br/>THERE ARE " + gameSession.getPencilCount() + " PENCILS LEFT.</center></html>");
+
+        hideButtons();
+        continueAfterDelay();
     }
-    
-    private void turnScreen(){
-        removeButtons();
+
+    private void runComputerTurn() {
+        int amount = gameSession.takeComputerTurn();
         titleLabel.setText("<html><center>"
-                + GameLogic.getPencils()
-                + "<br/><br/>THERE ARE " + GameLogic.getCount() + " PENCILS LEFT.");
-        frameTimer();
+                + gameSession.getPencilCount() + "<br/>"
+                + gameSession.getPencilDisplay()
+                + "<br/><br/>THE COMPUTER TOOK " + amount + " PENCIL" + (amount > 1 ? "S" : "") + "!</center></html>");
+
+        hideButtons();
+        continueAfterDelay();
     }
-    
-    private void gameOver(){
-        removeButtons();
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 25));
-        titleLabel.setText("<html><center>GAME OVER"
-                + "<br/>YOU LOSE!</center></html>");
+
+    private void continueAfterDelay() {
+        stopTransitionTimer();
+        transitionTimer = new Timer(ACTION_DELAY_MS, event -> {
+            GameResult result = gameSession.getResult();
+            if (result == GameResult.WIN) {
+                showGameOver(true);
+            } else if (result == GameResult.LOSE) {
+                showGameOver(false);
+            } else if (gameSession.isPlayerTurn()) {
+                showPlayerTurn();
+            } else {
+                runComputerTurn();
+            }
+        });
+        transitionTimer.setRepeats(false);
+        transitionTimer.start();
     }
-    
-    private void youWin() {
-        removeButtons();
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 25));
-        titleLabel.setText("<html><center>CONGRATULATIONS!"
-                + "<br/>YOU WIN!</center></html>");
+
+    private void showGameOver(boolean playerWon) {
+        hideButtons();
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 24));
+        startMenuCountdown(playerWon);
     }
-    
-    private void removeButtons(){
-        resetButtons();
+
+    private void startMenuCountdown(boolean playerWon) {
+        stopMenuCountdownTimer();
+        final int[] secondsLeft = {MENU_COUNTDOWN_SECONDS};
+        updateGameOverText(playerWon, secondsLeft[0]);
+
+        menuCountdownTimer = new Timer(1000, event -> {
+            secondsLeft[0]--;
+            if (secondsLeft[0] <= 0) {
+                stopMenuCountdownTimer();
+                showStartMenu();
+            } else {
+                updateGameOverText(playerWon, secondsLeft[0]);
+            }
+        });
+        menuCountdownTimer.start();
+    }
+
+    private void updateGameOverText(boolean playerWon, int secondsLeft) {
+        String headline = playerWon ? "CONGRATULATIONS!<br/>YOU WIN!" : "GAME OVER<br/>YOU LOSE!";
+        titleLabel.setText("<html><center>" + headline
+                + "<br/><br/>RETURNING TO MENU IN " + secondsLeft + "...</center></html>");
+    }
+
+    private void configureButtons(ButtonSpec first, ButtonSpec second, ButtonSpec third) {
+        applyButton(firstButton, first);
+        applyButton(secondButton, second);
+        applyButton(thirdButton, third);
+    }
+
+    private void applyButton(JButton button, ButtonSpec spec) {
+        for (var listener : button.getActionListeners()) {
+            button.removeActionListener(listener);
+        }
+
+        if (spec == null) {
+            button.setVisible(false);
+            button.setText("");
+            return;
+        }
+
+        button.setText(spec.text());
+        button.addActionListener(event -> spec.action().run());
+        button.setVisible(true);
+    }
+
+    private void hideButtons() {
         firstButton.setVisible(false);
         secondButton.setVisible(false);
         thirdButton.setVisible(false);
     }
-    private void frameTimer(){
-        Timer slowTime;
-        if (GameLogic.player && GameLogic.getCount() == 0){
-            slowTime = new Timer(3000, _ -> gameOver());
-        }else if (!GameLogic.player && GameLogic.getCount() == 0){
-            slowTime = new Timer(3000, _ -> youWin());
-        }else if (GameLogic.player){
-            slowTime = new Timer(3000, _ -> computerTurn());
-        }else{
-            slowTime = new Timer(3000, _ -> playerTurn());
+
+    private ImageIcon loadLabelIcon() {
+        URL labelIconUrl = GameWindow.class.getResource("/images/pencil_game_icon_16.png");
+        return labelIconUrl == null ? null : new ImageIcon(labelIconUrl);
+    }
+
+    private void stopTimers() {
+        stopTransitionTimer();
+        stopMenuCountdownTimer();
+    }
+
+    private void stopTransitionTimer() {
+        if (transitionTimer != null && transitionTimer.isRunning()) {
+            transitionTimer.stop();
         }
-        slowTime.setRepeats(false);
-        slowTime.start();
+    }
+
+    private void stopMenuCountdownTimer() {
+        if (menuCountdownTimer != null && menuCountdownTimer.isRunning()) {
+            menuCountdownTimer.stop();
+        }
+    }
+
+    private record ButtonSpec(String text, Runnable action) {
     }
 }
