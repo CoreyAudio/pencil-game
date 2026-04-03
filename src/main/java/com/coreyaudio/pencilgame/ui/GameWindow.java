@@ -1,6 +1,7 @@
 package com.coreyaudio.pencilgame.ui;
 
-import com.coreyaudio.pencilgame.GameLogic;
+import com.coreyaudio.pencilgame.Main;
+import com.coreyaudio.pencilgame.logic.GameLogic;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -187,7 +188,14 @@ public class GameWindow
         removeButtons();
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 25));
         titleLabel.setText("<html><center>GAME OVER"
-                + "<br/>YOU LOSE!");
+                + "<br/>YOU LOSE!</center></html>");
+    }
+    
+    private void youWin() {
+        removeButtons();
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 25));
+        titleLabel.setText("<html><center>CONGRATULATIONS!"
+                + "<br/>YOU WIN!</center></html>");
     }
     
     private void removeButtons(){
@@ -198,8 +206,10 @@ public class GameWindow
     }
     private void frameTimer(){
         Timer slowTime;
-        if (GameLogic.player == null){
+        if (GameLogic.player && GameLogic.getCount() == 0){
             slowTime = new Timer(3000, _ -> gameOver());
+        }else if (!GameLogic.player && GameLogic.getCount() == 0){
+            slowTime = new Timer(3000, _ -> youWin());
         }else if (GameLogic.player){
             slowTime = new Timer(3000, _ -> computerTurn());
         }else{

@@ -1,4 +1,4 @@
-package com.coreyaudio.pencilgame;
+package com.coreyaudio.pencilgame.logic;
 
 import java.util.Random;
 
@@ -52,9 +52,6 @@ public class GameLogic
     }
     
     public static int getCount(){
-        if (count == 1){
-            player = null;
-        }
         return count;
     }
 }
